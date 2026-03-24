@@ -50,7 +50,7 @@ def create_app():
     @app.route('/poke/<poke_id>')
     def poke(poke_id):
         try:
-            res = requests.get(poke_api+f'{poke_id}')
+            res = requests.get(poke_api+f'{poke_id}', timeout=5)
             if res.status_code == 200:
                 data = res.json()
                 exp = data['base_experience']
