@@ -1,3 +1,4 @@
+import requests
 from hashlib import sha3_256
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, login_required, UserMixin
@@ -5,6 +6,7 @@ from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from .secrets import *
 
+poke_api = 'https://pokeapi.co/api/v2/pokemon/'
 mongo = PyMongo()
 
 class User(UserMixin):
@@ -44,6 +46,26 @@ def create_app():
     @login_man.user_loader
     def load_user(user_id):
         return User.get(user_id)
+
+    @app.route('/poke/<poke_id>')
+    def poke(poke_id):
+        try:
+            res = requests.get(poke_api+f'{poke_id}')
+            if res.status_code == 200:
+                data = res.json()
+                exp = data['base_experience']
+                age_calc = f"{(exp * (3.5 if exp <= 120 else 1.8) // 12):.0f}"
+                poke_data = {
+                    'profile_pic' : data['sprites']['other']['official-artwork']['front_default'],
+                    'name' : data['name'],
+                    'age' : age_calc,
+                    'height' : f"{(data['height']*0.1):.1f}",
+                    'type_list' : [i['type']['name'] for i in data['types']],
+                }
+                return render_template('poke_profile.html', api_data=poke_data)
+        except requests.exceptions.RequestException as e:
+            print(e)
+            return "Something went wrong! Try again later!"
 
     @app.route('/login', methods=['GET','POST'])
     def login():
