@@ -1,0 +1,14 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <h2>API Data:</h2>
+
+    <div style="display: inline-block;">
+        <img src="{{ api_data.profile_pic }}" height="200 rem" width="200 rem">
+        <h3 style="text-transform: capitalize;"> Name = {{ api_data.name }}</h3>
+        <h3>Age = {{ api_data.age }} years (calculated with base exp.)</h3>
+        <h3>Height = {{ api_data.height }}m</h3>
+        <h3>Type(s) = {{ api_data.type_list | join(', ') }}
+        </h3>
+    </div>
+{% endblock content %}
